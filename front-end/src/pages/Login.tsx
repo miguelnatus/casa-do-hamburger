@@ -6,10 +6,39 @@ import Button from "../components/Button";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log(email, password);
+
+    try {
+      const response = await fetch("http://localhost:3000/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      console.log(response.status);
+
+      if (response.status === 404) {
+        setError("Usuário não encontrado");
+      }
+
+      if (response.status === 400) {
+        setError("Usuário e senha são obrigatórios");
+      }
+
+      if (response.status === 200) {
+        setError("");
+        const data = await response.json();
+        console.log(data);
+      }
+    } catch (error) {
+      console.log(error);
+      return;
+    }
   }
 
   return (
@@ -17,20 +46,25 @@ const Login = () => {
       className="flex h-screen items-center justify-center bg-[#161410]"
       onSubmit={handleSubmit}
     >
-      <div className="flex flex-col items-center justify-center gap-2">
+      <div className="flex flex-col justify-center gap-2">
         <Link to="/">
-          <img src="./logo.png" alt="" className="mb-4" />
+          <img src="./logo.png" alt="" className="mx-auto mb-4" />
         </Link>
-        <Input
-          placeholder="E-mail"
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <Input
-          placeholder="Senha"
-          type="password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button title="Login" />
+
+        <div className="mb-3 flex flex-col gap-2">
+          <Input
+            placeholder="E-mail"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Input
+            placeholder="Senha"
+            type="password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+        <p className="text-left text-sm font-bold text-red-500">{error}</p>
+
+        <Button title="Login" type="submit" />
         <Link to="/register" className="w-full">
           <Button title="Não tenho uma conta" variant="outline" />
         </Link>
