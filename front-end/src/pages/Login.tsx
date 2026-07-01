@@ -12,6 +12,11 @@ const Login = () => {
     e.preventDefault();
 
     try {
+      if (!email || !password) {
+        setError("Usuário e senha são obrigatórios");
+        return;
+      }
+
       const response = await fetch("http://localhost:3000/login", {
         method: "POST",
         headers: {
@@ -28,6 +33,14 @@ const Login = () => {
 
       if (response.status === 400) {
         setError("Usuário e senha são obrigatórios");
+      }
+
+      if (response.status === 401) {
+        setError("Usuário ou senha inválidos");
+      }
+
+      if (response.status === 500) {
+        setError("Erro no servidor");
       }
 
       if (response.status === 200) {
@@ -55,6 +68,7 @@ const Login = () => {
           <Input
             placeholder="E-mail"
             onChange={(e) => setEmail(e.target.value)}
+            type="email"
           />
           <Input
             placeholder="Senha"
